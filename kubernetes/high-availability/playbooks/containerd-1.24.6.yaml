@@ -8,7 +8,7 @@
       block: |
         10.15.0.10 k8s-api.beruanglaut.cloud
         {% for host in groups['all'] %}
-        {{ hostvars[host].ansible_host }} {{ host }} {{ hostvars[host].ansible_hostname }}
+        {{ hostvars[host].ansible_host }} {{ hostvars[host].ansible_hostname }} {{ host }}
         {% endfor %}
   - name: Install depedency
     apt:
@@ -225,7 +225,7 @@
   - name: Copy the join command to control plane
     copy:
       mode: 0777
-      src: ../join-command-controller
+      src: join-command-controller
       dest: /tmp/join-command.sh
   - name: Join the control plane node to cluster
     command: sh /tmp/join-command.sh
@@ -241,7 +241,7 @@
   - name: Copy the join command to control plane
     copy:
       mode: 0777
-      src: ../join-command-controller
+      src: join-command-controller
       dest: /tmp/join-command.sh
   - name: Join the control plane node to cluster
     command: sh /tmp/join-command.sh
@@ -257,7 +257,7 @@
   - name: Copy the join command to workers
     copy:
       mode: 0777
-      src: ../join-command-workers
+      src: join-command-workers
       dest: /tmp/join-command.sh
   - name: Join the workers node to cluster
     command: sh /tmp/join-command.sh
