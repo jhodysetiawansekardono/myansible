@@ -3,7 +3,7 @@ name=admin-user
 ca=$(kubectl -n kubernetes-dashboard get secret/$name -o jsonpath='{.data.ca\.crt}')
 token=$(kubectl -n kubernetes-dashboard get secret/$name -o jsonpath='{.data.token}' | base64 --decode)
 
-echo "
+cat << EOF > /tmp/kubeconfig-dashboard.yaml
 apiVersion: v1
 kind: Config
 clusters:
@@ -21,4 +21,4 @@ users:
 - name: admin
   user:
     token: ${token}
-" > /tmp/kubeconfig-dashboard.yaml
+EOF
