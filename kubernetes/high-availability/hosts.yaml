@@ -1,0 +1,9 @@
+[masters]
+jh-k8s-master001 ansible_host=10.15.0.11 ansible_user=root
+jh-k8s-master002 ansible_host=10.15.0.12 ansible_user=root
+jh-k8s-master003 ansible_host=10.15.0.13 ansible_user=root
+
+[workers]
+jh-k8s-worker001 ansible_host=10.15.0.14 ansible_user=root
+jh-k8s-worker002 ansible_host=10.15.0.15 ansible_user=root
+jh-k8s-worker003 ansible_host=10.15.0.16 ansible_user=root
