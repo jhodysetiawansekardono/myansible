@@ -298,6 +298,7 @@
   tags:
     - deploy-addons
     - addons-dashboard
+  tasks:
   - name: Confirm if you want to create k8s dashboard
     pause:
       prompt: "Do you want to create kubernetes dashboard? (yes/no)"
