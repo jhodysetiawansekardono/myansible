@@ -8,7 +8,7 @@
       block: |
         10.15.0.10 k8s-api.beruanglaut.cloud
         {% for host in groups['all'] %}
-        {{ hostvars[host].ansible_host }} {{ host }}
+        {{ hostvars[host].ansible_host }} {{ host }} {{ ansible_hostname }}
         {% endfor %}
   - name: Install depedency
     apt:
@@ -147,7 +147,7 @@
   tasks:
   - name: Create Keepalived configuration for master001
     copy:
-      src: loadbalancer/keepalived-master001.conf
+      src: ../loadbalancer/keepalived-master001.conf
       dest: /etc/keepalived/keepalived.conf
   - name: Apply keepalived configuration
     systemd:
@@ -159,7 +159,7 @@
   tasks:
   - name: Create Keepalived configuration for master002
     copy:
-      src: loadbalancer/keepalived-master002.conf
+      src: ../loadbalancer/keepalived-master002.conf
       dest: /etc/keepalived/keepalived.conf
   - name: Apply keepalived configuration
     systemd:
@@ -171,7 +171,7 @@
   tasks:
   - name: Create Keepalived configuration for master002
     copy:
-      src: loadbalancer/keepalived-master003.conf
+      src: ../loadbalancer/keepalived-master003.conf
       dest: /etc/keepalived/keepalived.conf
   - name: Apply keepalived configuration
     systemd:
@@ -183,7 +183,7 @@
   tasks:
   - name: Creating kubeadm config file
     copy:
-      src: manifests/kubeadm/kubernetes-1.24.6.yaml
+      src: ../manifests/kubeadm/kubernetes-1.24.6.yaml
       dest: /root/kubeadm-config.yaml
   - name: Initialize the first control plane
     shell: kubeadm init --config /root/kubeadm-config.yaml
@@ -225,7 +225,7 @@
   - name: Copy the join command to control plane
     copy:
       mode: 0777
-      src: join-command-controller
+      src: ../join-command-controller
       dest: /tmp/join-command.sh
   - name: Join the control plane node to cluster
     command: sh /tmp/join-command.sh
@@ -241,7 +241,7 @@
   - name: Copy the join command to control plane
     copy:
       mode: 0777
-      src: join-command-controller
+      src: ../join-command-controller
       dest: /tmp/join-command.sh
   - name: Join the control plane node to cluster
     command: sh /tmp/join-command.sh
@@ -257,7 +257,7 @@
   - name: Copy the join command to workers
     copy:
       mode: 0777
-      src: join-command-workers
+      src: ../join-command-workers
       dest: /tmp/join-command.sh
   - name: Join the workers node to cluster
     command: sh /tmp/join-command.sh
@@ -287,7 +287,7 @@
     when: create_metallb.user_input | bool
   - name: Create metallb configuration
     copy:
-      src: manifests/metallb/metallb-config.yaml
+      src: ../manifests/metallb/metallb-config.yaml
       dest: /root/metallb-config.yaml
     when: create_metallb.user_input | bool
   - name: Apply metallb configuration
@@ -311,8 +311,8 @@
       src: '{{item}}'
       dest: /root/
     loop:
-      - manifests/dashboard/dashboard-account.yaml
-      - scripts/kubeconfig-dashboard.sh
+      - ../manifests/dashboard/dashboard-account.yaml
+      - ../scripts/kubeconfig-dashboard.sh
     when: create_kubernetes_dashboard.user_input | bool
   - name: Creating user and kubeconfig for kubernetes dashboard
     shell: |
