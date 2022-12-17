@@ -130,12 +130,12 @@
       shell: /sbin/nologin
   - name: Create script for health check
     copy:
-      src: loadbalancer/check_apiserver.sh
+      src: ../loadbalancer/check_apiserver.sh
       dest: /etc/keepalived/check_apiserver.sh
       mode: 0755
   - name: Configuring loadbalancer
     copy:
-      src: loadbalancer/haproxy.cfg
+      src: ../loadbalancer/haproxy.cfg
       dest: /etc/haproxy/haproxy.cfg
   - name: Apply loadbalancer configuration
     systemd:
