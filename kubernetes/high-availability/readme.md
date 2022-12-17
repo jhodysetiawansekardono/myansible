@@ -7,3 +7,13 @@ Run the playbook
 ```
 ansible-playbook playbooks/containerd-1.24.6.yaml
 ```
+
+List tags
+```
+ansible-playbook playbooks/containerd-1.24.6.yaml --list-tags
+```
+
+Use tags
+```
+ansible-playbook playbooks/containerd-1.24.6.yaml --tags cleanup
+```
