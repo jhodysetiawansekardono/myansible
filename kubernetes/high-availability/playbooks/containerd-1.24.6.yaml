@@ -334,6 +334,7 @@
   tags:
     - deploy-addons
     - addons-ingress
+  tasks:
   - name: Confirm if you want to create nginx ingress controller
     pause:
       prompt: "Do you want to create nginx ingress controller? (yes/no)"
