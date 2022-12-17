@@ -1,6 +1,6 @@
 Test pinging the nodes
 ```
-ansible -i hosts.yaml all -m ping
+ansible all -m ping
 ```
 
 Run the playbook
