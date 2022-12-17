@@ -8,7 +8,7 @@
       block: |
         10.15.0.10 k8s-api.beruanglaut.cloud
         {% for host in groups['all'] %}
-        {{ hostvars[host].ansible_host }} {{ host }} {{ ansible_hostname }}
+        {{ hostvars[host].ansible_host }} {{ host }} {{ hostvars[host].ansible_hostname }}
         {% endfor %}
   - name: Install depedency
     apt:
