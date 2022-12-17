@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  tags: preflights
+  tags: install-depedencies
   tasks:
   - name: Update hosts file
     blockinfile:
@@ -98,9 +98,7 @@
       - containerd
 
 - hosts: masters
-  tags: 
-  - preflights
-  - build-loadbalancer
+  tags: create-loadbalancer
   tasks:
   - name: Install loadbalancer packages
     apt:
@@ -145,9 +143,7 @@
       state: restarted
 
 - hosts: master001
-  tags: 
-  - preflights
-  - build-loadbalancer
+  tags: create-loadbalancer
   tasks:
   - name: Create Keepalived configuration for master001
     copy:
@@ -159,9 +155,7 @@
       state: restarted
 
 - hosts: master002
-  tags: 
-  - preflights
-  - build-loadbalancer
+  tags: create-loadbalancer
   tasks:
   - name: Create Keepalived configuration for master002
     copy:
@@ -173,9 +167,7 @@
       state: restarted
 
 - hosts: master003
-  tags: 
-  - preflights
-  - build-loadbalancer
+  tags: create-loadbalancer
   tasks:
   - name: Create Keepalived configuration for master002
     copy:
@@ -187,7 +179,7 @@
       state: restarted
 
 - hosts: master001
-  tags: deploy
+  tags: bootstrap-cluster
   tasks:
   - name: Creating kubeadm config file
     copy:
@@ -228,7 +220,7 @@
     local_action: copy content="{{ join_command_workers.stdout_lines[0] }}" dest="./join-command-workers"
 
 - hosts: master002
-  tags: deploy
+  tags: bootstrap-cluster
   tasks:
   - name: Copy the join command to control plane
     copy:
@@ -244,7 +236,7 @@
       chown $(id -u):$(id -g) /root/.kube/config
 
 - hosts: master003
-  tags: deploy
+  tags: bootstrap-cluster
   tasks:
   - name: Copy the join command to control plane
     copy:
@@ -260,7 +252,7 @@
       chown $(id -u):$(id -g) /root/.kube/config
 
 - hosts: workers
-  tags: deploy
+  tags: bootstrap-cluster
   tasks:
   - name: Copy the join command to workers
     copy:
@@ -271,100 +263,100 @@
     command: sh /tmp/join-command.sh
 
 - hosts: master001
+  tags: bootstrap-cluster
   tasks:
   - name: Labeling worker nodes
-    tags: deploy
     shell: for hosts in $(kubectl get nodes | grep worker | awk '{print$1}'); do kubectl label nodes $hosts type=app; kubectl label nodes $hosts node-role.kubernetes.io/worker=; done
 
+- hosts: master001
+  tags:
+    - deploy-addons
+    - addons-metallb
+  tasks:
   - name: Confirm if you want to create metallb
-    tags: addons-metallb
     pause:
       prompt: "Do you want to create metallb? (yes/no)"
     register: create_metallb
   - name: Apply metallb manifest
-    tags: addons-metallb
     shell: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.5/config/manifests/metallb-native.yaml
     when: create_metallb.user_input | bool
   - name: Waiting metallb controller ready
-    tags: addons-metallb
     pause:
       echo: yes
       minutes: 2
     when: create_metallb.user_input | bool
   - name: Create metallb configuration
-    tags: addons-metallb
     copy:
       src: manifests/metallb/metallb-config.yaml
       dest: /root/metallb-config.yaml
     when: create_metallb.user_input | bool
   - name: Apply metallb configuration
-    tags: addons-metallb
     shell: kubectl create -f /root/metallb-config.yaml
     when: create_metallb.user_input | bool
 
+- hosts: master001
+  tags:
+    - deploy-addons
+    - addons-dashboard
   - name: Confirm if you want to create k8s dashboard
-    tags: addons-dashboard
     pause:
       prompt: "Do you want to create kubernetes dashboard? (yes/no)"
     register: create_kubernetes_dashboard
   - name: Apply k8s dashboard manifest
-    tags: addons-dashboard
     shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
     when: create_kubernetes_dashboard.user_input | bool
   - name: Create k8s dashboard config file
-    tags: addons-dashboard
     copy:
       src: '{{item}}'
       dest: /root/
     loop:
-      - manifests/dashboard/user-k8s-dashboard.yaml
+      - manifests/dashboard/dashboard-account.yaml
       - scripts/kubeconfig-dashboard.sh
     when: create_kubernetes_dashboard.user_input | bool
   - name: Creating user and kubeconfig for kubernetes dashboard
-    tags: addons-dashboard
     shell: |
-      kubectl apply -f /root/user-k8s-dashboard.yaml
+      kubectl apply -f /root/dashboard-account.yaml
       bash /root/kubeconfig-dashboard.sh
     when: create_kubernetes_dashboard.user_input | bool
   - name: Need loadbalancer for k8s dashboard?
-    tags: addons-dashboard
     pause:
       prompt: "Do you want to create loadbalancer for k8s dashboard? (yes/no)"
     register: create_lb_ingress_controller
   - name: Creating loadbalancer for k8s dashboard
-    tags: addons-dashboard
     shell: |
       kubectl -n kubernetes-dashboard get svc kubernetes-dashboard -o yaml > /root/kubernetes-dashboard-svc.yaml
       sed -i 's+ClusterIP+LoadBalancer+g' /root/kubernetes-dashboard-svc.yaml
       kubectl apply -f /root/kubernetes-dashboard-svc.yaml
     when: create_lb_ingress_controller.user_input | bool
 
+- hosts: master001
+  tags:
+    - deploy-addons
+    - addons-ingress
   - name: Confirm if you want to create nginx ingress controller
-    tags: addons-ingress
     pause:
       prompt: "Do you want to create nginx ingress controller? (yes/no)"
     register: create_ingress_controller
   - name: Apply nginx ingress manifest
-    tags: addons-ingress
     shell: |
       kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/baremetal/deploy.yaml
       kubectl -n ingress-nginx scale deployment ingress-nginx-controller --replicas=3
     when: create_ingress_controller.user_input | bool
   - name: Confirm if you want to create loadbalancer for ingress controller
-    tags: addons-ingress
     pause:
       prompt: "Do you want to create loadbalancer for ingress controller? (yes/no)"
     register: create_lb_ingress_controller
   - name: Creating loadbalancer for ingress controller
-    tags: addons-ingress
     shell: |
       kubectl -n ingress-nginx get svc ingress-nginx-controller -o yaml > /root/ingress-nginx-svc.yaml
       sed -i 's+NodePort+LoadBalancer+g' /root/ingress-nginx-svc.yaml
       kubectl apply -f /root/ingress-nginx-svc.yaml
     when: create_lb_ingress_controller.user_input | bool
 
+- hosts: master001
+  tags: cleanup
+  tasks:
   - name: Cleaning manifest
-    tags: cleanup
     file:
       path: "{{ item }}"
       state: absent
@@ -375,7 +367,7 @@
       - /root/metallb-config.yaml
       - /root/ingress-nginx-svc.yaml
       - /root/kubernetes-dashboard-svc.yaml
-      - /root/user-k8s-dashboard.yaml
+      - /root/dashboard-account.yaml
       - /root/kubeconfig-dashboard.sh
 
 - hosts: localhost
