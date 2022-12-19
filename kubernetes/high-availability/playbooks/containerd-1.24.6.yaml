@@ -374,9 +374,9 @@
 
 - hosts: localhost
   connection: local
+  tags: cleanup
   tasks:
   - name: Removing join command
-    tags: cleanup
     file:
       path: "{{ item }}"
       state: absent
