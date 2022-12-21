@@ -1,3 +1,9 @@
+IP Inventory is in `scripts/configure-address.sh`, after configuring ip run
+```
+cd scripts
+bash configure-address.sh
+```
+
 Test pinging the nodes
 ```
 ansible all -m ping
