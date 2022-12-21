@@ -6,7 +6,7 @@
     blockinfile:
       path: /etc/hosts
       block: |
-        10.15.0.10 k8s-api.beruanglaut.cloud
+        K8S_VIP K8S_API
         {% for host in groups['all'] %}
         {{ hostvars[host].ansible_host }} {{ hostvars[host].ansible_hostname }} {{ host }}
         {% endfor %}
