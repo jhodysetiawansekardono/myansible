@@ -1,7 +1,6 @@
 IP Inventory is in `scripts/configure-address.sh`, Run this after configuring
 ```
-cd scripts
-bash configure-address.sh
+bash scripts/configure-address.sh
 ```
 
 Test pinging the nodes
