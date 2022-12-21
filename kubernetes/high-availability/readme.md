@@ -1,4 +1,4 @@
-IP Inventory is in `scripts/configure-address.sh`, after configuring ip run
+IP Inventory is in `scripts/configure-address.sh`, Run this after configuring
 ```
 cd scripts
 bash configure-address.sh
