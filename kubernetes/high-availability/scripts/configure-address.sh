@@ -11,5 +11,5 @@ WORKER02=10.15.0.15
 WORKER03=10.15.0.16
 
 # Scripts
-sed -i "s+K8S_VIP+$K8S_VIP+g" ../playbooks/containerd-1.25.0.yaml ../playbooks/containerd-1.24.6.yaml ../loadbalancer/check_apiserver.sh ../loadbalancer/keepalived-master001.conf ./loadbalancer/keepalived-master002.conf ./loadbalancer/keepalived-master003.conf
-sed -i "s+K8S_API+$K8S_API+g" ../loadbalancer/check_apiserver.sh
+sed -i "s+K8S_VIP+$K8S_VIP+g" ../playbooks/containerd-1.25.0.yaml ../playbooks/containerd-1.24.6.yaml ../loadbalancer/check_apiserver.sh ../loadbalancer/keepalived-master001.conf ../loadbalancer/keepalived-master002.conf ../loadbalancer/keepalived-master003.conf
+sed -i "s+K8S_API+$K8S_API+g" ../playbooks/containerd-1.25.0.yaml ../playbooks/containerd-1.24.6.yaml ../loadbalancer/check_apiserver.sh
