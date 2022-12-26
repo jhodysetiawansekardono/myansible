@@ -34,6 +34,7 @@ loadbalancer/check_apiserver.sh
 
 sed -i "s+CLUSTER_NAME+$CLUSTER_NAME+g" \
 manifests/kubeadm/kubernetes-1.15.9.yaml \
+manifests/kubeadm/kubernetes-1.20.12.yaml \
 manifests/kubeadm/kubernetes-1.24.6.yaml \
 manifests/kubeadm/kubernetes-1.25.0.yaml
 
