@@ -129,7 +129,9 @@
       - kubelet
       - kubeadm
       - kubectl
-      - containerd
+      - containerd.io
+      - docker-ce
+      - docker-ce-cli
 
 - hosts: masters
   tags: create-loadbalancer
@@ -228,7 +230,7 @@
       mkdir -p /root/.kube
       cp -i /etc/kubernetes/admin.conf /root/.kube/config
       chown $(id -u):$(id -g) /root/.kube/config
-      kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+      kubectl apply -f https://docs.projectcalico.org/v3.21/manifests/calico.yaml
   - name: Configure kubernetes cluster to use haproxy frontend port
     shell: |
       kubectl -n kube-system get configmap kubeadm-config -o jsonpath='{.data.ClusterConfiguration}' > /root/kubeadm-config.yaml
