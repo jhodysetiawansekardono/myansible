@@ -23,6 +23,7 @@
       - gnupg
       - lsb-release
       - nfs-common
+      - glusterfs-client
   - name: Load required docker modules
     copy:
       dest: /etc/modules-load.d/docker.conf
