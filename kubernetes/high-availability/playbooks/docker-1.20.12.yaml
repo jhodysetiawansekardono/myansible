@@ -193,9 +193,7 @@
     vars:
       K8S_VIP: "{{ K8S_VIP }}"
       K8S_API: "{{ K8S_API }}"
-    loop: "{{ groups['masters'] }}"
-    loop_control:
-      loop_var: item
+    with_items: "{{ groups['masters'] }}"
     vars:
       KEEPALIVED_STATE: "{{ hostvars[item]['KEEPALIVED_STATE'] }}"
       KEEPALIVED_PRIORITY: "{{ hostvars[item]['KEEPALIVED_PRIORITY'] }}"
