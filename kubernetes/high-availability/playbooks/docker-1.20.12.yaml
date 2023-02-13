@@ -138,8 +138,6 @@
 
 - hosts: masters
   tags: create-loadbalancer
-  vars_files:
-  - vars.yaml
   tasks:
   - name: Install loadbalancer packages
     apt:
@@ -182,7 +180,38 @@
     systemd:
       name: haproxy
       state: restarted
+
+- hosts: master001
+  tags: create-loadbalancer
+  vars_files:
+  - vars.yaml
   - name: Create Keepalived configuration for master001
+    copy:
+      src: ../inventory/keepalived.conf.j2
+      dest: /etc/keepalived/keepalived.conf
+  - name: Apply keepalived configuration
+    systemd:
+      name: keepalived
+      state: restarted
+
+- hosts: master002
+  tags: create-loadbalancer
+  vars_files:
+  - vars.yaml
+  - name: Create Keepalived configuration for master002
+    copy:
+      src: ../inventory/keepalived.conf.j2
+      dest: /etc/keepalived/keepalived.conf
+  - name: Apply keepalived configuration
+    systemd:
+      name: keepalived
+      state: restarted
+
+- hosts: master003
+  tags: create-loadbalancer
+  vars_files:
+  - vars.yaml
+  - name: Create Keepalived configuration for master003
     copy:
       src: ../inventory/keepalived.conf.j2
       dest: /etc/keepalived/keepalived.conf
