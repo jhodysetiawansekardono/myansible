@@ -173,7 +173,7 @@
       create_home: false
       shell: /sbin/nologin
   - name: Create script for health check
-    copy:
+    template:
       src: ../templates/check_apiserver.sh.j2
       dest: /etc/keepalived/check_apiserver.sh
       mode: 0755
