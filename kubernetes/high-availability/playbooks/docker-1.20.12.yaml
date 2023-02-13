@@ -191,8 +191,8 @@
       src: ../inventory/keepalived.conf.j2
       dest: /etc/keepalived/keepalived.conf
     vars:
-      KEEPALIVED_STATE: "{{ KEEPALIVED_STATE_[inventory_hostname] }}"
-      KEEPALIVED_PRIORITY: "{{ KEEPALIVED_PRIORITY_[inventory_hostname] }}"
+      KEEPALIVED_STATE: "{{ KEEPALIVED_STATE_[host] }}"
+      KEEPALIVED_PRIORITY: "{{ KEEPALIVED_PRIORITY_[host] }}"
     register: result
   - name: Apply keepalived configuration
     when: result is changed
