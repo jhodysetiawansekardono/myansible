@@ -182,7 +182,7 @@
       state: restarted
 
 - hosts: masters
-  tags: create-loadbalancer
+  tags: create-keepalived
   vars_files:
   - vars.yaml
   tasks:
