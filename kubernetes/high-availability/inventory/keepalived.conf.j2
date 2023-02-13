@@ -11,10 +11,10 @@ vrrp_script check_apiserver {
 }
 
 vrrp_instance K8S-VIP {
-    state {{ KEEPALIVED_STATE[master001] }}
+    state {{ KEEPALIVED_STATE }}
     interface ens3
     virtual_router_id 51
-    priority {{ KEEPALIVED_PRIORITY[master001] }}
+    priority {{ KEEPALIVED_PRIORITY }}
     authentication {
     auth_type PASS
         auth_pass Tru$tNo1
