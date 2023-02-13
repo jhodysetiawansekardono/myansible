@@ -187,38 +187,12 @@
   - vars.yaml
   tasks:
   - name: Create Keepalived configuration for master001
-    copy:
+    template:
       src: ../inventory/keepalived.conf.j2
       dest: /etc/keepalived/keepalived.conf
+    register: result
   - name: Apply keepalived configuration
-    systemd:
-      name: keepalived
-      state: restarted
-
-- hosts: master002
-  tags: create-loadbalancer
-  vars_files:
-  - vars.yaml
-  tasks:
-  - name: Create Keepalived configuration for master002
-    copy:
-      src: ../inventory/keepalived.conf.j2
-      dest: /etc/keepalived/keepalived.conf
-  - name: Apply keepalived configuration
-    systemd:
-      name: keepalived
-      state: restarted
-
-- hosts: master003
-  tags: create-loadbalancer
-  vars_files:
-  - vars.yaml
-  tasks:
-  - name: Create Keepalived configuration for master003
-    copy:
-      src: ../inventory/keepalived.conf.j2
-      dest: /etc/keepalived/keepalived.conf
-  - name: Apply keepalived configuration
+    when: result is changed
     systemd:
       name: keepalived
       state: restarted
