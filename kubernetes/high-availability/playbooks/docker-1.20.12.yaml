@@ -167,12 +167,12 @@
       shell: /sbin/nologin
   - name: Create script for health check
     copy:
-      src: ../loadbalancer/check_apiserver.sh
+      src: ../configuration/check_apiserver.sh
       dest: /etc/keepalived/check_apiserver.sh
       mode: 0755
   - name: Configuring loadbalancer
     copy:
-      src: ../loadbalancer/haproxy.cfg
+      src: ../configuration/haproxy.cfg
       dest: /etc/haproxy/haproxy.cfg
   - name: Apply loadbalancer configuration
     systemd:
@@ -184,7 +184,7 @@
   tasks:
   - name: Create Keepalived configuration for master001
     copy:
-      src: ../loadbalancer/keepalived-master001.conf
+      src: ../configuration/keepalived-master001.conf
       dest: /etc/keepalived/keepalived.conf
   - name: Apply keepalived configuration
     systemd:
@@ -196,7 +196,7 @@
   tasks:
   - name: Create Keepalived configuration for master002
     copy:
-      src: ../loadbalancer/keepalived-master002.conf
+      src: ../configuration/keepalived-master002.conf
       dest: /etc/keepalived/keepalived.conf
   - name: Apply keepalived configuration
     systemd:
@@ -208,7 +208,7 @@
   tasks:
   - name: Create Keepalived configuration for master002
     copy:
-      src: ../loadbalancer/keepalived-master003.conf
+      src: ../configuration/keepalived-master003.conf
       dest: /etc/keepalived/keepalived.conf
   - name: Apply keepalived configuration
     systemd:
