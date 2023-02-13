@@ -1,4 +1,5 @@
 K8S_VIP: "10.10.0.10/32"
+K8S_api: k8s-api.beruanglaut.cloud
 master001:
   KEEPALIVED_PRIORITY: 100
   KEEPALIVED_STATE: MASTER

@@ -1,0 +1,14 @@
+---
+- hosts: all
+  tags: install-depedencies
+  vars_files:
+  - vars.yaml
+    tasks:
+    - name: Update hosts file
+      blockinfile:
+        path: /etc/hosts
+        block: |
+          {{ K8S_VIP }} {{ K8S_API }}
+          {% for host in groups['all'] %}
+          {{ hostvars[host].ansible_host }} {{ hostvars[host].ansible_hostname }} {{ host }}
+          {% endfor %}
