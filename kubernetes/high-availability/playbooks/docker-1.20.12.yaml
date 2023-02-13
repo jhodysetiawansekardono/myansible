@@ -181,7 +181,7 @@
       name: haproxy
       state: restarted
 
-- hosts: master001
+- hosts: masters
   tags: create-keepalived
   vars_files:
   - vars.yaml
