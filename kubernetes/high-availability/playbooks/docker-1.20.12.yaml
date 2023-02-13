@@ -190,11 +190,6 @@
     template:
       src: ../inventory/keepalived.conf.j2
       dest: /etc/keepalived/keepalived.conf
-    vars:
-      K8S_VIP: "{{ K8S_VIP }}"
-      K8S_API: "{{ K8S_API }}"
-      KEEPALIVED_STATE: "{{ KEEPALIVED_STATE }}"
-      KEEPALIVED_PRIORITY: "{{ KEEPALIVED_PRIORITY }}"
     register: result
   - name: Apply keepalived configuration
     when: result is changed
