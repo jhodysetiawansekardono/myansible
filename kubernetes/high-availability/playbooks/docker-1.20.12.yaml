@@ -189,7 +189,7 @@
   - name: Debug Keepalived Variables
     with_items: "{{ groups['masters'] }}"
     debug:
-      var: host_vars[item].KEEPALIVED_STATE
+      var: host_vars[inventory_hostname].KEEPALIVED_STATE
   - name: Debug Keepalived Variables
     debug:
       var: hostvars[host].KEEPALIVED_PRIORITY
