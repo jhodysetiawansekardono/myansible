@@ -186,17 +186,6 @@
   vars_files:
   - vars.yaml
   tasks:
-  - name: Create Keepalived configuration for master
-    template:
-      src: ../inventory/keepalived.conf.j2
-      dest: /etc/keepalived/keepalived.conf
-    register: result
-  - name: Apply keepalived configuration
-    when: result is changed
-    systemd:
-      name: keepalived
-      state: restarted
-
   - name: Debug Keepalived Variables
     debug:
       var: hostvars[inventory_hostname]['KEEPALIVED_STATE']
