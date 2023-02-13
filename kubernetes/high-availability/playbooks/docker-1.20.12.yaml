@@ -193,8 +193,6 @@
     vars:
       K8S_VIP: "{{ K8S_VIP }}"
       K8S_API: "{{ K8S_API }}"
-      KEEPALIVED_STATE: "{{ hostvars[inventory_hostname].KEEPALIVED_STATE }}"
-      KEEPALIVED_PRIORITY: "{{ hostvars[inventory_hostname].KEEPALIVED_PRIORITY }}"
   - name: Apply keepalived configuration
     when: result is changed
     systemd:
