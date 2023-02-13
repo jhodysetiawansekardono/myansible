@@ -1,17 +1,11 @@
 master001:
-  K8S_VIP: 10.15.0.10
-  K8S_API: k8s-api.beruanglaut.cloud
   KEEPALIVED_STATE: MASTER
   KEEPALIVED_PRIORITY: 100
 
 master002:
-  K8S_VIP: 10.15.0.10
-  K8S_API: k8s-api.beruanglaut.cloud
   KEEPALIVED_STATE: BACKUP
   KEEPALIVED_PRIORITY: 99
 
 master003:
-  K8S_VIP: 10.15.0.10
-  K8S_API: k8s-api.beruanglaut.cloud
   KEEPALIVED_STATE: BACKUP
   KEEPALIVED_PRIORITY: 98
