@@ -192,7 +192,7 @@
       dest: /etc/keepalived/keepalived.conf
     vars:
       KEEPALIVED_STATE: "{{ hostvars[inventory_hostname]['KEEPALIVED_STATE'] }}"
-      KEEPALIVED_PRIORITY: "{{ hostvars[inventory_hostname]['KEEPALIVED_STATE'] }}"
+      KEEPALIVED_PRIORITY: "{{ hostvars[inventory_hostname]['KEEPALIVED_PRIORITY'] }}"
     register: result
   - name: Apply keepalived configuration
     when: result is changed
