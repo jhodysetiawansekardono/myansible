@@ -14,7 +14,7 @@ vrrp_instance K8S-VIP {
     state "{{ KEEPALIVED_STATE[inventory_hostname] }}"
     interface ens3
     virtual_router_id 51
-    priority "{{ KEEPALIVED_STATE[KEEPALIVED_PRIORITY] }}"
+    priority "{{ KEEPALIVED_PRIORITY[inventory_hostname] }}"
     authentication {
     auth_type PASS
         auth_pass Tru$tNo1
