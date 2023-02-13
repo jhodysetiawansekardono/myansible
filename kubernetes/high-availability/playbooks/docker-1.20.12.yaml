@@ -192,3 +192,9 @@
   - name: Debug Keepalived Variables
     debug:
       var: hostvars[inventory_hostname]['KEEPALIVED_PRIORITY']
+  - name: Debug Keepalived Variables
+    debug:
+      var: K8S_VIP
+  - name: Debug Keepalived Variables
+    debug:
+      var: K8S_API
