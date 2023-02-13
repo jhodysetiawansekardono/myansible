@@ -188,7 +188,7 @@
   tasks:
   - name: Create Keepalived configuration for master
     template:
-      src: ../templates/keepalived.conf.j2
+      src: ../inventory/keepalived.conf.j2
       dest: /etc/keepalived/keepalived.conf
     register: result
   - name: Apply keepalived configuration
