@@ -185,6 +185,7 @@
   tags: create-loadbalancer
   vars_files:
   - vars.yaml
+  tasks:
   - name: Create Keepalived configuration for master001
     copy:
       src: ../inventory/keepalived.conf.j2
@@ -198,6 +199,7 @@
   tags: create-loadbalancer
   vars_files:
   - vars.yaml
+  tasks:
   - name: Create Keepalived configuration for master002
     copy:
       src: ../inventory/keepalived.conf.j2
@@ -211,6 +213,7 @@
   tags: create-loadbalancer
   vars_files:
   - vars.yaml
+  tasks:
   - name: Create Keepalived configuration for master003
     copy:
       src: ../inventory/keepalived.conf.j2
