@@ -174,12 +174,12 @@
       shell: /sbin/nologin
   - name: Create script for health check
     copy:
-      src: ../inventory/check_apiserver.sh.j2
+      src: ../templates/check_apiserver.sh.j2
       dest: /etc/keepalived/check_apiserver.sh
       mode: 0755
   - name: Configuring loadbalancer
     copy:
-      src: ../inventory/haproxy.cfg
+      src: ../templates/haproxy.cfg
       dest: /etc/haproxy/haproxy.cfg
   - name: Apply loadbalancer configuration
     systemd:
@@ -187,7 +187,7 @@
       state: restarted
   - name: Create Keepalived configuration for master
     template:
-      src: ../inventory/keepalived.conf.j2
+      src: ../templates/keepalived.conf.j2
       dest: /etc/keepalived/keepalived.conf
     register: result
   - name: Apply keepalived configuration
