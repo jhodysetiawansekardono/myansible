@@ -188,7 +188,7 @@
   tasks:
   - name: Debug Keepalived Variables
     debug:
-      var: host_vars.[inventory_hostname].KEEPALIVED_STATE
+      var: host_vars.[host].KEEPALIVED_STATE
   - name: Debug Keepalived Variables
     debug:
       var: hostvars[host].KEEPALIVED_PRIORITY
