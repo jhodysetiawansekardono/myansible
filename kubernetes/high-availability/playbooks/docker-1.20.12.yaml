@@ -198,6 +198,3 @@
   - name: Debug Keepalived Variables
     debug:
       var: K8S_API
-  - name: Debug Keepalived Variables
-    debug:
-      var: hostvars[inventory_hostname]
