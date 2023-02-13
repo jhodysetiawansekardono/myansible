@@ -11,7 +11,7 @@ vrrp_script check_apiserver {
 }
 
 vrrp_instance K8S-VIP {
-    state "{{ hostvars[inventory_hostname].KEEPALIVED_STATE }}"
+    state "{{ lookup('vars', hostvars[inventory_hostname] + '.KEEPALIVED_STATE') }}"
     interface ens3
     virtual_router_id 51
     priority "{{ hostvars[inventory_hostname].KEEPALIVED_PRIORITY }}"
