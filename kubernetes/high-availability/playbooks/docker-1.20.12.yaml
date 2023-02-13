@@ -82,6 +82,7 @@
         },
           "storage-driver": "overlay2"
         }
+    register: result
   - name: Enable Docker service
     systemd:
       name: docker
@@ -90,10 +91,12 @@
     systemd:
       name: docker
       daemon_reload: yes
+    when: result is changed
   - name: Restarting Docker service
     systemd:
       name: docker
       state: restarted
+    when: result is changed
   - name: Remove swapfile from /etc/fstab
     mount:
       name: "{{ item }}"
