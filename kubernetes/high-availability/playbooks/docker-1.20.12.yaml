@@ -187,8 +187,9 @@
   - vars.yaml
   tasks:
   - name: Debug Keepalived Variables
+    with_items: "{{ groups['masters'] }}"
     debug:
-      var: hostvars[inventory_hostname].KEEPALIVED_STATE
+      var: hostvars[item].KEEPALIVED_STATE
   - name: Debug Keepalived Variables
     debug:
       var: hostvars[host].KEEPALIVED_PRIORITY
