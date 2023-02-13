@@ -20,7 +20,6 @@ vrrp_instance K8S-VIP {
         auth_pass Tru$tNo1
     }
     virtual_ipaddress {
-        {{ K8S_VIP }}
     }
     track_script {
         check_apiserver
