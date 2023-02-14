@@ -337,7 +337,7 @@
     tags: addons-dashboard
     template:
       src: '{{item}}'
-      dest: /root/
+      dest: '/root/{{ basename(item) }}'
     loop:
       - ../manifests/dashboard/dashboard-account.yaml
       - ../manifests/dashboard/kubeconfig-dashboard.sh.j2
