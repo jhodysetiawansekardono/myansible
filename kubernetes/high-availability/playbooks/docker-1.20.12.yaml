@@ -163,38 +163,41 @@
     loop:
       - haproxy
       - keepalived
-  - name: Create group for health check
+  - name: Configuring loadbalancer
+    copy:
+      src: ../templates/haproxy.cfg
+      dest: /etc/haproxy/haproxy.cfg
+    register: configuring_loadbalancer
+  - name: Apply loadbalancer configuration
+    systemd:
+      name: haproxy
+      state: restarted
+    when: configuring_loadbalancer.changed
+  - name: Create group for Keepalived health check
     group:
       name: keepalived_script
       state: present
       system: true
-  - name: Create user for executing health check scripts
+  - name: Create Keepalived script user for executing health check
     user:
       name: keepalived_script
       group: keepalived_script
       system: true
       create_home: false
       shell: /sbin/nologin
-  - name: Create script for health check
+  - name: Create Keepalived script for health check
     template:
       src: ../templates/check_apiserver.sh.j2
       dest: /etc/keepalived/check_apiserver.sh
       mode: 0755
-  - name: Configuring loadbalancer
-    copy:
-      src: ../templates/haproxy.cfg
-      dest: /etc/haproxy/haproxy.cfg
-  - name: Apply loadbalancer configuration
-    systemd:
-      name: haproxy
-      state: restarted
+    register: create_keepalived_script
   - name: Create Keepalived configuration for master
     template:
       src: ../templates/keepalived.conf.j2
       dest: /etc/keepalived/keepalived.conf
-    register: result
+    register: create_keepalived_configuration
   - name: Apply keepalived configuration
-    when: result is changed
     systemd:
       name: keepalived
       state: restarted
+    when: create_keepalived_script.changed or create_keepalived_configuration.changed
