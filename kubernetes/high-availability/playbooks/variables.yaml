@@ -1,5 +1,6 @@
 K8S_VIP: 10.15.0.10
 K8S_API: k8s-api.beruanglaut.cloud
+METALLB_IPPOOL: 10.15.0.200-10.15.0.250
 host_vars:
   master001:
     KEEPALIVED_STATE: MASTER

@@ -201,3 +201,170 @@
       name: keepalived
       state: restarted
     when: create_keepalived_script.changed or create_keepalived_configuration.changed
+
+- hosts: master001
+  tags: bootstrap-cluster
+  tasks:
+  - name: Creating kubeadm config file
+    copy:
+      src: ../manifests/kubeadm/kubernetes-1.20.12.yaml
+      dest: /root/kubeadm-config.yaml
+  - name: Initialize the first control plane
+    shell: kubeadm init --config /root/kubeadm-config.yaml
+  - name: Configure kubelet
+    shell: sed -i 's/6443/8443/g' /etc/kubernetes/admin.conf /etc/kubernetes/kubelet.conf
+  - name: Apply CNI calico
+    shell: |
+      mkdir -p /root/.kube
+      cp -i /etc/kubernetes/admin.conf /root/.kube/config
+      chown $(id -u):$(id -g) /root/.kube/config
+      kubectl apply -f https://docs.projectcalico.org/v3.21/manifests/calico.yaml
+  - name: Configure kubernetes cluster to use haproxy frontend port
+    shell: |
+      kubectl -n kube-system get configmap kubeadm-config -o jsonpath='{.data.ClusterConfiguration}' > /root/kubeadm-config.yaml
+      sed -i 's/6443/8443/g' /root/kubeadm-config.yaml
+      kubeadm init phase upload-config kubeadm --config /root/kubeadm-config.yaml
+      kubectl -n kube-system get cm kube-proxy -o yaml > /root/kube-proxy.yaml
+      sed -i 's/6443/8443/g' /root/kube-proxy.yaml
+      kubectl apply -f /root/kube-proxy.yaml
+      kubectl -n kube-system rollout restart ds kube-proxy
+      kubectl -n kube-system rollout status ds kube-proxy
+      kubectl -n kube-public get cm cluster-info -o yaml > /root/cluster-info.yaml
+      sed -i 's/6443/8443/g' /root/cluster-info.yaml
+      kubectl apply -f /root/cluster-info.yaml
+  - name: Generate join command for control-plane
+    shell: echo "$(kubeadm token create --print-join-command) --control-plane --certificate-key $(kubeadm init phase upload-certs --upload-certs | grep -vw -e certificate -e Namespace)"
+    register: join_command_controller
+  - name: Copy join command for control-plane to local file
+    local_action: copy content="{{ join_command_controller.stdout_lines[0] }}" dest="./join-command-controller"
+  - name: Generate join command for workers
+    command: kubeadm token create --print-join-command
+    register: join_command_workers
+  - name: Copy join command for workers to local file
+    local_action: copy content="{{ join_command_workers.stdout_lines[0] }}" dest="./join-command-workers"
+
+- hosts: master002
+  tags: join-masters
+  tasks:
+  - name: Copy the join command to control plane
+    copy:
+      mode: 0777
+      src: join-command-controller
+      dest: /tmp/join-command.sh
+  - name: Join the control plane node to cluster
+    command: sh /tmp/join-command.sh
+  - name: Copy kubeconfig
+    shell: |
+      mkdir -p /root/.kube
+      cp -i /etc/kubernetes/admin.conf /root/.kube/config
+      chown $(id -u):$(id -g) /root/.kube/config
+
+- hosts: master003
+  tags: join-masters
+  tasks:
+  - name: Copy the join command to control plane
+    copy:
+      mode: 0777
+      src: join-command-controller
+      dest: /tmp/join-command.sh
+  - name: Join the control plane node to cluster
+    command: sh /tmp/join-command.sh
+  - name: Copy kubeconfig
+    shell: |
+      mkdir -p /root/.kube
+      cp -i /etc/kubernetes/admin.conf /root/.kube/config
+      chown $(id -u):$(id -g) /root/.kube/config
+
+- hosts: workers
+  tags: join-workers
+  tasks:
+  - name: Copy the join command to workers
+    copy:
+      mode: 0777
+      src: join-command-workers
+      dest: /tmp/join-command.sh
+  - name: Join the workers node to cluster
+    command: sh /tmp/join-command.sh
+
+- hosts: master001
+  tags: join-workers
+  tasks:
+  - name: Labeling worker nodes
+    shell: for hosts in $(kubectl get nodes | grep worker | awk '{print$1}'); do kubectl label nodes $hosts type=app; kubectl label nodes $hosts node-role.kubernetes.io/worker=; done
+
+- hosts: master001
+  tags:
+    - deploy-addons
+  tasks:
+  - name: Confirm if you want to create metallb
+    tags:
+    - addons-metallb
+    pause:
+      prompt: "Do you want to create metallb? (yes/no)"
+    register: create_metallb
+  - name: Apply metallb manifest
+    tags:
+    - addons-metallb
+    shell: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.5/config/manifests/metallb-native.yaml
+    when: create_metallb.user_input | bool
+  - name: Waiting metallb controller ready
+    tags:
+    - addons-metallb
+    pause:
+      echo: yes
+      minutes: 2
+    when: create_metallb.user_input | bool
+  - name: Create metallb configuration
+    tags:
+    - addons-metallb
+    template:
+      src: ../manifests/metallb/metallb-config.yaml.j2
+      dest: /root/metallb-config.yaml
+    when: create_metallb.user_input | bool
+  - name: Apply metallb configuration
+    tags:
+    - addons-metallb
+    shell: kubectl create -f /root/metallb-config.yaml
+    when: create_metallb.user_input | bool
+  - name: Confirm if you want to create k8s dashboard
+    tags:
+    - addons-dashboard
+    pause:
+      prompt: "Do you want to create kubernetes dashboard? (yes/no)"
+    register: create_kubernetes_dashboard
+  - name: Apply k8s dashboard manifest
+    tags:
+    - addons-dashboard
+    shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recommended.yaml
+    when: create_kubernetes_dashboard.user_input | bool
+  - name: Create k8s dashboard config file
+    tags:
+    - addons-dashboard
+    copy:
+      src: '{{item}}'
+      dest: /root/
+    loop:
+      - ../manifests/dashboard/dashboard-account.yaml
+      - ../scripts/kubeconfig-dashboard.sh
+    when: create_kubernetes_dashboard.user_input | bool
+  - name: Creating user and kubeconfig for kubernetes dashboard
+    tags:
+    - addons-dashboard
+    shell: |
+      kubectl apply -f /root/dashboard-account.yaml
+      bash /root/kubeconfig-dashboard.sh
+    when: create_kubernetes_dashboard.user_input | bool
+  - name: Need loadbalancer for k8s dashboard?
+    tags:
+    - addons-dashboard
+    pause:
+      prompt: "Do you want to create loadbalancer for k8s dashboard? (yes/no)"
+    register: create_lb_ingress_controller
+  - name: Creating loadbalancer for k8s dashboard
+    tags:
+    - addons-dashboard
+    shell: |
+      kubectl -n kubernetes-dashboard get svc kubernetes-dashboard -o yaml > /root/kubernetes-dashboard-svc.yaml
+      sed -i 's+ClusterIP+LoadBalancer+g' /root/kubernetes-dashboard-svc.yaml
+      kubectl apply -f /root/kubernetes-dashboard-svc.yaml
+    when: create_lb_ingress_controller.user_input | bool
