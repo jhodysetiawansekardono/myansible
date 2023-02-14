@@ -204,9 +204,11 @@
 
 - hosts: master001
   tags: bootstrap-cluster
+  vars_files:
+  - variables.yaml
   tasks:
   - name: Creating kubeadm config file
-    copy:
+    template:
       src: ../manifests/kubeadm/kubernetes-1.20.12.yaml.j2
       dest: /root/kubeadm-config.yaml
   - name: Initialize the first control plane
@@ -294,6 +296,8 @@
 
 - hosts: master001
   tags: deploy-addons
+  vars_files:
+  - variables.yaml
   tasks:
   - name: Confirm if you want to create metallb
     tags: addons-metallb
@@ -331,12 +335,12 @@
     when: create_kubernetes_dashboard.user_input | bool
   - name: Create k8s dashboard config file
     tags: addons-dashboard
-    copy:
+    template:
       src: '{{item}}'
       dest: /root/
     loop:
       - ../manifests/dashboard/dashboard-account.yaml
-      - ../scripts/kubeconfig-dashboard.sh
+      - ../manifests/kubeconfig-dashboard.sh.j2
     when: create_kubernetes_dashboard.user_input | bool
   - name: Creating user and kubeconfig for kubernetes dashboard
     tags: addons-dashboard
