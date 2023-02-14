@@ -351,6 +351,9 @@
       kubectl apply -f /root/dashboard-account.yaml
       bash /root/kubeconfig-dashboard.sh
     when: create_kubernetes_dashboard.user_input | bool
+  - name: Health check MetalLB
+    tags: addons-dashboard
+    shell: 
   - name: Need loadbalancer for k8s dashboard?
     tags: addons-dashboard
     pause:
