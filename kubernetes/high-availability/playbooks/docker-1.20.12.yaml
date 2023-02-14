@@ -340,7 +340,7 @@
       dest: /root/
     loop:
       - ../manifests/dashboard/dashboard-account.yaml
-      - ../manifests/kubeconfig-dashboard.sh.j2
+      - ../manifests/dashboard/kubeconfig-dashboard.sh.j2
     when: create_kubernetes_dashboard.user_input | bool
   - name: Creating user and kubeconfig for kubernetes dashboard
     tags: addons-dashboard
