@@ -333,14 +333,17 @@
     tags: addons-dashboard
     shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recommended.yaml
     when: create_kubernetes_dashboard.user_input | bool
-  - name: Create k8s dashboard config file
+  - name: Copy manifest Kubernetes dashboard account
+    tags: addons-dashboard
+    copy:
+      src: ../manifests/dashboard/dashboard-account.yaml
+      dest: /root/dashboard-account.yaml
+    when: create_kubernetes_dashboard.user_input | bool
+  - name: Copy Kubernetes dashboard script to create kubeconfig token
     tags: addons-dashboard
     template:
-      src: '{{item}}'
-      dest: '/root/{{ basename(item) }}'
-    loop:
-      - ../manifests/dashboard/dashboard-account.yaml
-      - ../manifests/dashboard/kubeconfig-dashboard.sh.j2
+      src: ../manifests/dashboard/kubeconfig-dashboard.sh.j2
+      dest: /root/kubeconfig-dashboard.sh
     when: create_kubernetes_dashboard.user_input | bool
   - name: Creating user and kubeconfig for kubernetes dashboard
     tags: addons-dashboard
