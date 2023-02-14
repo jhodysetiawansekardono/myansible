@@ -32,6 +32,7 @@
       content: |
         overlay
         br_netfilter
+    register: load_docker_modules
   - name: Load required sysctl parameters
     copy:
       dest: /etc/sysctl.d/99-kubernetes-cri.conf
@@ -39,11 +40,13 @@
         net.bridge.bridge-nf-call-iptables  = 1
         net.bridge.bridge-nf-call-ip6tables = 1
         net.ipv4.ip_forward                 = 1
+    register: load_sysctl_parameters
   - name: Apply modules and parameters
     shell: |
       modprobe overlay
       modprobe br_netfilter
       sysctl --system
+    when: load_docker_modules.changed or load_sysctl_parameters.changed
   - name: Set DPKG architecture
     set_fact:
       dpkg_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture }}"
