@@ -202,6 +202,7 @@
   - name: Configure kubelet
     shell: sed -i 's/6443/8443/g' /etc/kubernetes/admin.conf /etc/kubernetes/kubelet.conf
   - name: Apply CNI calico
+    tags: apply-calico
     shell: |
       mkdir -p /root/.kube
       cp -i /etc/kubernetes/admin.conf /root/.kube/config
