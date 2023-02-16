@@ -276,10 +276,36 @@
     command: sh /tmp/join-command.sh
 
 - hosts: master001
-  tags: join-workers
+  vars_files:
+  - variables.yaml
   tasks:
   - name: Labeling worker nodes
+    tags: join-workers
     shell: for hosts in $(kubectl get nodes | grep worker | awk '{print$1}'); do kubectl label nodes $hosts type=app; kubectl label nodes $hosts node-role.kubernetes.io/worker=; done
+  - name: Confirm if you want to create metallb
+    tags: addons-metallb
+    pause:
+      prompt: "Do you want to create metallb? (yes/no)"
+    register: create_metallb
+  - name: Apply metallb manifest
+    tags: addons-metallb
+    shell: |
+      kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.10/manifests/namespace.yaml
+      kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.10/manifests/metallb.yaml
+    when: create_metallb.user_input | bool
+  - name: Waiting metallb controller ready
+    tags: addons-metallb
+    pause:
+      echo: yes
+      minutes: 2
+    when: create_metallb.user_input | bool
+  - name: Apply metallb configuration
+    tags: addons-metallb
+    shell: |
+      wget https://raw.githubusercontent.com/metallb/metallb/v0.10/manifests/example-layer2-config.yaml -O /root/metallb-config.yaml
+      sed -i 's+192.168.1.240/28+{{ METALLB_IPPOOL }}+g' /root/metallb-config.yaml
+      kubectl apply -f /root/metallb-config.yaml
+    when: create_metallb.user_input | bool
 
   - name: Cleaning manifest
     tags: cleanup
